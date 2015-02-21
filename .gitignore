@@ -25,6 +25,9 @@ Desktop.ini
 # Recycle Bin used on file shares
 $RECYCLE.BIN/
 
+#firebase
+firebase.json
+
 # App specific
 .idea
 
