@@ -4,6 +4,7 @@ var React = require('react/addons');
 //var ReactTransitionGroup = React.addons.CSSTransitionGroup;
 //var FilterableProductTable = require('./FilterableProductTable.js');
 var Gameboard = require('./Game01');
+var FirebaseGame = require('./FirebaseGame');
 
 // Export React so the devtools can find it
 window.React = React;
@@ -27,6 +28,7 @@ var ReactgameApp = React.createClass({
     var image = this.state.showImage ?  <img onClick={this.onClick} key="myimage" src={imageURL} /> : <p onClick={this.onClick} key="mypara">hello</p>;
     return (
       <div className='main'>
+        <FirebaseGame/>
         <Gameboard/>
       </div>
     );

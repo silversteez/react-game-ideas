@@ -32,7 +32,7 @@ var Cell = React.createClass({
     var style = {
       top: data.y * 50,
       left: data.x * 50,
-      backgroundColor: data.isOpen ? "lightblue" : "lightcoral"
+      backgroundColor: data.isOpen ? "lightblue" : "grey"
     };
     return (
       <div
