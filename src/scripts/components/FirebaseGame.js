@@ -27,46 +27,77 @@ var CreateRoomButton = React.createClass({
     }
 });
 
+var SharableLink = React.createClass({
+  render: function() {
+    return (
+      <input type="text" value={this.props.roomUrl}/>
+    );
+  }
+});
+
 var Game = React.createClass({
   componentWillMount: function() {
+    var self = this;
+
     // Try authenticating
-    rootRef.onAuth(onAuth.bind(this));
+    rootRef.onAuth(onAuthAttempt);
 
     // Handle authentication attempt
-    function onAuth(authData) {
+    function onAuthAttempt(authData) {
       if (authData) {
-        myUid = authData.uid;
-        this.setState({loggedIn: true, statusMessage: "Recognized logged in user:" + authData.uid});
+        onAuthenticated(authData);
       } else {
-        rootRef.authAnonymously(onAuthAnonymously.bind(this));
+        rootRef.authAnonymously(onNewAuthAnonymously);
       }
     }
 
     // Auth as new anonymous user
-    function onAuthAnonymously(error, authData) {
+    function onNewAuthAnonymously(error, authData) {
       if (error) {
-        this.setState({loggedIn: false, statusMessage:"Login Failed!"});
+        self.setState({loggedIn: false, statusMessage:"Login Failed!"});
       } else {
-        myUid = authData.uid;
-        this.setState({loggedIn: true, statusMessage:"Auth Success: " + authData.uid});
+        onAuthenticated(authData);
+        creatNewUser(authData);
       }
+    }
+
+    function onAuthenticated(authData) {
+      myUid = authData.uid;
+      self.setState({loggedIn: true, statusMessage: "Auth Success: " + authData.uid});
+    }
+
+    function creatNewUser(authData) {
+      usersRef.child(myUid).set({name: "guest", room:null});
+    }
+
+    // check url for room
+    function checkRoomStatus() {
+
     }
   },
   getInitialState: function() {
     return {
       loggedIn: false,
+      inRoom: null,
       statusMessage: "Logging in..."
     };
   },
   handleCreateRoom: function() {
-    gamesRef.push({players:1});
-    this.setState({statusMessage:"Tried to create game..."})
+    var newGame = gamesRef.push({players: {0: myUid}});
+    usersRef.child(myUid).child('room').set(newGame.key());
+    this.setState({inRoom: newGame.key(), statusMessage:"Tried to create game..."});
   },
   render: function() {
+    var inRoom = (this.state.inRoom) ? true : false;
+    var roomUrl = window.location + '?room=' + this.state.inRoom;
+    var inRoomStuff = <SharableLink roomUrl={roomUrl}/>;
+    var createRoomStuff = <CreateRoomButton loggedIn={this.state.loggedIn} createRoom={this.handleCreateRoom}/>;
+    var body = inRoom ? inRoomStuff : createRoomStuff;
+
     return (
       <div>
         <StatusAlert statusMessage={this.state.statusMessage}/>
-        <CreateRoomButton loggedIn={this.state.loggedIn} createRoom={this.handleCreateRoom}/>
+        {body}
       </div>
     );
   }
