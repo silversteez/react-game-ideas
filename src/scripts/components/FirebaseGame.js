@@ -57,22 +57,25 @@ var Game = React.createClass({
         self.setState({loggedIn: false, statusMessage:"Login Failed!"});
       } else {
         onAuthenticated(authData);
-        creatNewUser(authData);
+        createNewUser(authData);
       }
     }
 
     function onAuthenticated(authData) {
       myUid = authData.uid;
       self.setState({loggedIn: true, statusMessage: "Auth Success: " + authData.uid});
+      checkRoomStatus();
     }
 
-    function creatNewUser(authData) {
+    function createNewUser(authData) {
       usersRef.child(myUid).set({name: "guest", room:null});
     }
 
     // check url for room
     function checkRoomStatus() {
-
+      usersRef.child(myUid).child('room').once("value", function(snap) {
+        console.log('my room value is snap.val', snap.val());
+      });
     }
   },
   getInitialState: function() {
